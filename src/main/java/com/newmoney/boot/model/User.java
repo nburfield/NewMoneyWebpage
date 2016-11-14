@@ -1,5 +1,11 @@
 package com.newmoney.boot.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Entity
 public class User {
 	public User() {}
 	
@@ -42,8 +48,16 @@ public class User {
 		this.password = password;
 	}
 
+	@Id
+	@GeneratedValue
 	private long id;
+	
+	@Column(nullable = false, length = 30)
 	private String firstName;
+	
+	@Column(nullable = false, length = 30)
 	private String lastName;
+	
+	@Column(nullable = false, length = 30)
 	private String password;	
 }
