@@ -8,4 +8,5 @@ import com.newmoney.boot.model.User;
 @Configuration
 public interface UserRepository extends CrudRepository<User, Long> {
 	public List<User> findByFirstName(String firstName);
+	public User findByEmail(String email);
 }

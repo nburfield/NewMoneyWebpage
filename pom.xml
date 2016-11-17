@@ -65,6 +65,11 @@
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrapvalidator</artifactId>
+			<version>0.5.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>
