@@ -1,18 +1,15 @@
 package com.newmoney.boot.controller;
 
-import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.client.RestTemplate;
-
-import com.newmoney.boot.RestResources.Company;
-import com.newmoney.boot.RestResources.HistoricalData;
-import com.newmoney.boot.RestResources.HistoricalDatum;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
 import com.newmoney.boot.model.User;
+import com.newmoney.boot.model.UserValidation;
 import com.newmoney.boot.repository.UserRepository;
 
 @Controller
@@ -23,20 +20,55 @@ public class UserController {
 	
 	@GetMapping(value = {"/", "/login"})
 	public String login(Model model) {
-		model.addAttribute("user", new User());
+		model.addAttribute("userValidation", new UserValidation());
 		return "user/login";
 	}
+			
+	@PostMapping("/login")
+	public ModelAndView login(@ModelAttribute UserValidation user) {
+		System.out.println("Login Post: ");
+		System.out.println(user.getEmail() + " " + user.getFirstName() + " " + user.getLastName() + " " + user.getPassword());
+		
+		User loginUser = userRepository.findByEmail(user.getEmail());
+		if(loginUser == null) {
+			return new ModelAndView("redirect:/login");
+		}
+		
+		System.out.println(loginUser.getEncryptedPassword());
+		
+		if(user.getAuthenticate(loginUser.getEncryptedPassword(), loginUser.getSalt())) {
+			return new ModelAndView("redirect:/about");
+		}
+		else {
+			return new ModelAndView("redirect:/login");
+		}		
+	}
 	
+	@GetMapping(value = "/register")
+	public String register(Model model) {
+		model.addAttribute("userValidation", new UserValidation());
+		return "user/register";
+	}
 	
-	@GetMapping(value = "/company/{ticker}")
-	public String getCompany(@PathVariable("ticker") String stockId, Model model) {
-		RestTemplate restTemplate = new RestTemplate();
-        Company company = restTemplate.getForObject("http://localhost:8080/", Company.class);
-        
-        HistoricalDatum [] historicalData = restTemplate.getForObject("http://localhost:8080/" + stockId, HistoricalDatum[].class);
-        		
-        model.addAttribute("historicalData", Arrays.asList(historicalData));
-		model.addAttribute("company", company);
-		return "company/view";
+	@PostMapping("/register")
+	public ModelAndView register(@ModelAttribute UserValidation user) {
+		System.out.println("Register Post: ");
+		System.out.println(user.getEmail() + " " + user.getFirstName() + " " + user.getLastName() + " " + user.getPassword());
+		
+		User loginUser = userRepository.findByEmail(user.getEmail());
+		if(loginUser != null) {
+			return new ModelAndView("redirect:/register");
+		}
+		
+		user.setAuthenticate();
+		User saveUser = new User(user.getEmail(), user.getFirstName(), user.getLastName(), user.getEncryptedPassword(), user.getSalt(), 1);
+		userRepository.save(saveUser);
+		
+		return new ModelAndView("redirect:/about");
+	}
+	
+	@GetMapping(value = "/about")
+	public String about() {
+		return "general/about";
 	}
 }
