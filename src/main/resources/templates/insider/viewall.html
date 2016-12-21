@@ -37,7 +37,7 @@
 
     <div class="navbar navbar-inverse navbar-fixed-left">
       <a class="navbar-brand" href="/company">Companies</a>
-      <a class="navbar-brand"  href="/insider">Insiders</a>
+      <a class="navbar-brand" href="/insider">Insiders</a>
     </div>
   
     <nav class="navbar navbar-top navbar-light bg-faded navbar-fixed-top">
@@ -63,7 +63,7 @@
   <div class="container">
   
     <div class="jumbotron">
-      <h2 class="display-1 text-center">All Companies</h2>
+      <h2 class="display-1 text-center">All Insiders</h2>
     </div>
   
     <div id="accordion" role="tablist" aria-multiselectable="true">
@@ -71,14 +71,14 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Ticker</th>
+              <th>City, State</th>
               <th>CIK</th>
             </tr>
           </thead>
-          <tr th:each="company : ${companies}">
-            <td><a th:href="@{/company/} + ${company.ticker}" th:text="${company.name}">Name</a></td>
-            <td><a th:href="@{/company/} + ${company.ticker}" th:text="${company.ticker}">Ticker</a></td>
-            <td><a th:href="@{/company/} + ${company.ticker}" th:text="${company.cik}">CIK</a></td>
+          <tr th:each="insider : ${insiders}">
+            <td><a th:href="@{/insider/} + ${insider.cik}" th:text="${insider.name}">Name</a></td>
+            <td><a th:href="@{/insider/} + ${insider.cik}" th:inline="text">[[${insider.city}]], [[${insider.state}]]</a></td>
+            <td><a th:href="@{/insider/} + ${insider.cik}" th:text="${insider.cik}">CIK</a></td>
           </tr>
         </table>
     </div>

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head lang="en">
 
-    <title th:inline="text">Company [[${company.ticker}]]</title>
+    <title th:inline="text">[[${company.ticker}]] Insiders</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
  
     <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.4/css/bootstrap.min.css"
@@ -34,8 +34,8 @@
 </head>
 
 <body>
-
-    <div class="navbar navbar-inverse navbar-fixed-left">
+  
+      <div class="navbar navbar-inverse navbar-fixed-left">
       <a class="navbar-brand" th:href="@{/company/} + ${company.ticker}" th:text="${company.name}">Companies</a>
        <ul class="nav navbar-nav">
        <!-- <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
@@ -78,68 +78,66 @@
       <h1 class="display-1 text-center" th:text="${company.name}">Name</h1>
       <h2 class="display-2 text-center" th:text="${company.ticker}">Ticker</h2>
       <hr class="my-2"/>
-      <p>
-        <span th:if="${company.street1 != null}"><span class="text-left" th:inline="text">[[${company.street1}]]</span><br/></span>
-        <span th:if="${company.street2 != null}"><span class="text-left" th:inline="text">[[${company.street2}]]</span><br/></span>
-        <span th:if="${company.city != null}"><span class="text-left" th:inline="text">[[${company.city}]], [[${company.state}]] [[${company.zip}]]</span></span>
-      </p>
+      <h2 class="display-2 text-center">Insiders</h2>
     </div>
 
   <div id="accordion" role="tablist" aria-multiselectable="true">
-    <p>
-      <button class="btn btn-primary" type="button" data-toggle="collapse" data-parent="#accordion" data-target="#graph" aria-expanded="true" aria-controls="graph">
-        Historical Interactive Chart
-      </button>
-      <button class="btn btn-primary" type="button" data-toggle="collapse" data-parent="#accordion" data-target="#raw-data" aria-expanded="false" aria-controls="raw-data">
-        Raw Historical Data Table
-      </button>
-      <a th:href="@{/company/} + ${company.ticker} + @{/historical_data}" class="btn btn-primary" role="button">Download Raw Historical Data</a>
-    </p>
     
-    <div class="card">
-      <div id="graph" class="collapse in" role="tabpanel" aria-labelledby="Graph">
-        <iframe th:src="@{/company/chart/} + ${company.ticker}"></iframe>
-      </div>
-    </div>
-    
-    <div class="card">      
-      <div id="raw-data" class="collapse" role="tabpanel" aria-labelledby="RawData">
-        <div class="card-block">
-            <table id="sorted-table" class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Open</th>
-                  <th>High</th>
-                  <th>Low</th>
-                  <th>Close</th>
-                  <th>Volume</th>
-                  <th>Adjusted Close</th>
-                </tr>
-              </thead>
-              <tr th:each="hd : ${historicalData}">
-                <td th:inline="text">[[${hd.year}]]/[[${hd.month}]]/[[${hd.day}]]</td>
-                <td th:text="${#numbers.formatDecimal(hd.open,1,2)}">2</td>
-                <td th:text="${#numbers.formatDecimal(hd.high,1,2)}">3</td>
-                <td th:text="${#numbers.formatDecimal(hd.low,1,2)}">4</td>
-                <td th:text="${#numbers.formatDecimal(hd.close,1,2)}">5</td>
-                <td th:text="${#numbers.formatInteger(hd.volume,3,'COMMA')}">6</td>
-                <td th:text="${#numbers.formatDecimal(hd.adjustedClose,1,2)}">7</td>
-              </tr>
-            </table>
-        </div>
-      </div>
-    </div>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th class="text-center" colspan="3" >Insiders</th>
+        </tr>
+      </thead>
+      <tr th:each="insider : ${insiders}">
+        <td class="text-center" bgcolor="#b4b4b4" colspan="4" th:text="${insider.name}">Name</td>
+        <tr th:each="form4 : ${insider.form4}">
+          <td th:text="${form4.date}">Date</td>
+          <td colspan="2">
+            <span th:if="${form4.isDirector}">Director</span>
+            <span th:if="${form4.isOfficer}"><span th:text="${form4.officerTitle}"></span></span>
+            <span th:if="${form4.isTenPercent}">10% Owner</span>
+            <span th:if="${form4.isOther}"><span th:text="${form4.officerTitle}"></span></span>
+          </td>
+          <span th:if="${not #lists.isEmpty(form4.nonderivative)}">
+            <tr><td colspan="3">Non-Derivative Transactions</td></tr>
+            <tr>
+              <td>Name</td>
+              <td>Date</td>
+              <td>Acquired (A) or Disposed (D)</td>
+            </tr>
+            <tr th:each="nd : ${form4.nonderivative}">
+              <td th:text="${nd.securityTitle}">Name</td>
+              <td th:text="${nd.transactionDate}">Date</td>
+              <td th:text="${nd.transactionAcquiredDisposedCode}">AD</td>
+            </tr>
+          </span>
+          <span th:if="${not #lists.isEmpty(form4.derivative)}">
+            <tr><td colspan="3">Derivative Transactions</td></tr>
+            <tr>
+              <td>Name</td>
+              <td>Date</td>
+              <td>Acquired (A) or Disposed (D)</td>
+            </tr>
+            <tr th:each="nd : ${form4.derivative}">
+              <td th:text="${nd.securityTitle}">Name</td>
+              <td th:text="${nd.transactionDate}">Date</td>
+              <td th:text="${nd.transactionAcquiredDisposedCode}">AD</td>
+            </tr>
+          </span>
+        </tr>
+      </tr>
+    </table>
+
   </div>
 
-    <footer class="footer">
+      <footer class="footer">
         <div class="text-center">
           <span class="text-muted">New Money Data Vending &copy; Nolan Burfield</span>
         </div>
     </footer>
   
   </div>
-
 
 </body>
 </html>
